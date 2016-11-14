@@ -148,6 +148,7 @@ def build_c(board, d):
 		else:
 			cage_len = random.randint(2, min(max_cage_size, len(choices)))
 
+		#grab at least one cell for the cage
 		cage = []
 		first_choice = random.choice(choices)
 		cage.append(first_choice)
@@ -155,6 +156,7 @@ def build_c(board, d):
 
 		cage_choices = choices[:]
 
+		#grab remaining cells to fill cage
 		while len(cage) < cage_len:
 			try:
 				choice = random.choice(cage_choices)
@@ -176,6 +178,7 @@ def build_c(board, d):
 			if is_compat:
 				cage.append(choice)
 
+		#calculate the value for the cage
 		if len(cage):
 			vals = []
 			for i in range(len(cage)):
