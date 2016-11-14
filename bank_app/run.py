@@ -3,7 +3,7 @@ from plaid import errors as plaid_errors
 from plaid.utils import json
 
 access_token=''
-client = Client(client_id='563bf068e7dbd3891f08e57d', secret='')
+client = Client(client_id='', secret='')
 account_type = 'chase'
 username = ''
 password = ''
