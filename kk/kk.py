@@ -1,16 +1,23 @@
 import random, itertools, time, copy
 
+HELP_CMD = 'h'
+CAGES_CMD = 'c'
+UNDO_CMD = 'z'
+REDO_CMD = 'x'
+QUIT_CMD = 'q'
+RESET_CMD = 'r'
+REPLAY_CMD = 'a'
 
 def show_help_message():
 	print('************************************')
 	print('welcome to kk. this is the help menu')
-	print('h: show this menu')
-	print('c: show cages (useful when adjacent cages share same values)')
-	print('u: undo (can undo repeatedly)')
-	print('z: redo (can redo repeatedly)')
-	print('q: quit the game')
-	print('r: reset the current game with the same board')
-	print('a: play again, re-entering your board size and difficulty')
+	print('{}: show this menu'.format(HELP_CMD))
+	print('{}: show cages (useful when adjacent cages share same values)'.format(CAGES_CMD))
+	print('{}: undo (can undo repeatedly)'.format(UNDO_CMD))
+	print('{}: redo (can redo repeatedly)'.format(REDO_CMD))
+	print('{}: quit the game'.format(QUIT_CMD))
+	print('{}: reset the current game with the same board'.format(RESET_CMD))
+	print('{}: play again, re-entering your board size and difficulty'.format(REPLAY_CMD))
 	print('************************************')
 
 class ListBoard:
@@ -242,29 +249,29 @@ def main():
 		print(ListBoard(userboard))
 		try:
 			vals = raw_input('enter value as `row,col,val`: ').split(',')
-			if vals[0].lower() == 'c':
+			if vals[0].lower() == CAGES_CMD:
 				print('cages:')
 				print(cages)
-			elif vals[0].lower() == 'q':
+			elif vals[0].lower() == QUIT_CMD:
 				print('quitting! here is the answer:')
 				print(ListBoard(board))
 				exit()
-			elif vals[0].lower() == 'r':
+			elif vals[0].lower() == RESET_CMD:
 				print('restarting game with current board')
 				userboard = init_userboard(board, cage_board)
-			elif vals[0].lower() == 'u':
+			elif vals[0].lower() == UNDO_CMD:
 				if len(undo):
 					last = undo.pop()
 					redo.append((last[0], userboard[last[0][0]][last[0][1]]))
 					userboard[last[0][0]][last[0][1]] = last[1]
-			elif vals[0].lower() == 'z':
+			elif vals[0].lower() == REDO_CMD:
 				if len(redo):
 					last = redo.pop()
 					undo.append((last[0], userboard[last[0][0]][last[0][1]]))
 					userboard[last[0][0]][last[0][1]] = last[1]
-			elif vals[0].lower() == 'a':
+			elif vals[0].lower() == REPLAY_CMD:
 				main()
-			elif vals[0].lower() == 'h':
+			elif vals[0].lower() == HELP_CMD:
 				show_help_message()
 			else:
 				row, col, val = int(vals[0]), int(vals[1]), int(vals[2])
