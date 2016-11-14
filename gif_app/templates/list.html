@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+    <title>Shooting Shit</title>
+    <!-- CSS  -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+    <style type="text/css">
+    body {
+        min-height: 100%;
+    }
+    
+    img, video {
+        max-height: 300px;
+        max-width: 300px;
+    }
+    </style>
+</head>
+
+<body>
+    <!-- heading search bar -->
+    <nav class="deep-purple darken-3" role="navigation">
+        <div class="nav-wrapper container">
+            <form>
+                <div class="input-field">
+                    <input id="search" type="search">
+                    <label for="search"><i class="material-icons">search</i></label>
+                    <i class="material-icons" onclick="clearSearch()">close</i>
+                </div>
+            </form>
+        </div>
+    </nav>
+    <!-- first time instructions -->
+    <div class="section no-pad-bot" id="instructions">
+        <div class="container">
+            <br>
+            <br>
+            <h1 class="header center orange-text">Welcome!</h1>
+            <div class="row center">
+                <h5 class="header col s12 light">Search for a gif, it won't let you down.</h5>
+                <h4><a href="/">Get Random GIFs</a></h4>
+            </div>
+            <br>
+            <br>
+        </div>
+    </div>
+    <!-- the data after the search -->
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                {% for post in posts %}
+                <div class="col s12 m4">
+                    {% if post.webm %}
+                    <video src="{{post.webm}}" autoplay="true" loop="true" title="{{post.kw}}">
+                    {% else %}
+                    <img src="{{post.url}}" title="{{post.kw}}"> 
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- the footer -->
+    <footer class="page-footer light-green accent-3">
+        <div class="container">
+            <div class="row">
+                <div class="col l8 s12">
+                    <h5 class="white-text">Nope</h5>
+                    <p class="grey-text text-lighten-4">Are you tired of sleeping at night? Do you toss and turn, thinking theres got to be a better way? Worry no more! Introducing a way to search for cats in your time of need.</p>
+                </div>
+                <div class="col l4 s12">
+                    <h5 class="white-text">Related Sites</h5>
+                    <ul>
+                        <li><a class="white-text" href="http://reddit.com">Reddit.com</a></li>
+                        <li><a class="white-text" href="http://flask.pocoo.org">Flask</a></li>
+                        <li><a class="white-text" href="http://materializecss.com">Materialize</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                Made by <a class="orange-text text-lighten-3" href="http://idonthaveawebsite.com">Drew</a>
+            </div>
+        </div>
+    </footer>
+    <!-- scripts -->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+    <script type="text/javascript">
+    $('input#search').bind('keypress', function(e) {
+        // Escape.
+        if (e.keyCode === 27) {
+            clearSearch();
+            return;
+        } else if (e.keyCode === 13) {
+            // enter
+            var val = document.getElementById('search').value;
+            window.location.href = "/search?query=" + val;
+            return false;
+        }
+    });
+
+    function clearSearch() {
+        $('input#search').val('');
+        $('input#search').blur();
+    }
+    </script>
+</body>
+
+</html>
