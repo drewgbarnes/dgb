@@ -357,8 +357,9 @@ def test_difficulty(board_size=5, boards_to_test=100):
 				for i in range(len(cage_board[j])):
 					if cage_board[i][j].count('.') == 1:
 						s += 1
-		print('average # of filled in squares for difficulty ' + str(diff) + ': ' + str(float(s) / boards_to_test))
+		percent_filled = ((float(s) / boards_to_test) / board_size ** 2) *100
+		print('average # of filled in squares for difficulty {}: {} or {}%'.format(diff, float(s) / boards_to_test, percent_filled))
 
 # test_time(board_size=8, difficulty=3)
-# test_difficulty(board_size=8)
+# test_difficulty(board_size=7)
 main()
