@@ -9,6 +9,11 @@ RESET_CMD = 'r'
 REPLAY_CMD = 'a'
 SAVE = False
 
+COLORS = ['\033[9{}m'.format(x) for x in range(8)]
+SOLO_COLOR = COLORS.pop()
+COLORS += ['\033[3{}m'.format(x) for x in range(1,7,1)]
+ENDC = '\033[0m'
+
 def show_help_message():
 	print('************************************')
 	print('welcome to kk. this is the help menu')
@@ -22,51 +27,63 @@ def show_help_message():
 	print('************************************')
 
 class ListBoard:
-	def __init__(self, b):
+	def __init__(self, b, normal=True, color=None):
 		self.b = b
+		self.normal = normal
+		self.color = color
 	def __str__(self):
 		max_res = 0
 		for i in self.b:
 			for j in i:
 				if len(str(j)) > max_res:
 					max_res = len(str(j))
-		s = '   '
-		for i in range(len(self.b[0])):
-			s += str(i) + '  ' * max_res
+		if not self.normal:
+			max_res = max_res - len(COLORS[0]) - len(ENDC)
+		s = '    '
+		for i in range(len(self.b)):
+			s += str(i) + (' ' * max_res)
 		s += '\n'
 		x = 0
-		for i in self.b:
-			s += str(x) + ' ' + str(i) + '\n'
+		for i in range(len(self.b)):
+			row = ''
+			for z in range(len(self.b[i])):
+				guy = str(self.b[i][z])
+				if self.color:
+					guy = self.color[i][z] + guy + ENDC
+				row += guy + ' '
+			s += str(x) + ' ' + '[ '+ row + ']' + '\n'
 			x += 1
-		return s
-
-class Board:
-	def __init__(self, b):
-		self.b = b
-	def __str__(self):
-		s = ''
-		for i in self.b:
-			for j in i:
-				s += str(j)
-			s += '\n'
 		return s
 
 def build_cb(cages, n):
 	max_res = 0
+	color_board = {}
 	cage_board = [['#' for x in range(n)] for i in range(n)]
+	oldcolor = color = random.choice(COLORS)
 	for cage in cages:
+		while color == oldcolor:
+			color = random.choice(COLORS)
+		if len(cage) == 1:
+			color = SOLO_COLOR
+		oldcolor = color
 		for cell in cage:
 			if len(str(cages[cage][0])) + 1 > max_res:
 				max_res = len(str(cages[cage][0])) + 1
-			cage_board[cell[0]][cell[1]] = str(cages[cage][0]) + cages[cage][1]
+			cage_board[cell[0]][cell[1]] = color + str(cages[cage][0]) + cages[cage][1]
+			if cell[0] in color_board:
+				# if cell[1] in color_board[cell[0]]:
+				color_board[cell[0]][cell[1]] = color
+				# else:	
+					# color_board[cell[0]] = {cell[1]: color}
+			else:
+				color_board[cell[0]] = {cell[1]: color}
 
-	#normalize cell lengths so board always appears same visually (easier to play)
+	# normalize cell lengths so board always appears same visually (easier to play)
 	for row in range(len(cage_board)):
 		for col in range(len(cage_board[row])):
-			if len(cage_board[row][col]) < max_res:
-				cage_board[row][col] = cage_board[row][col] + ' ' * (max_res - len(cage_board[row][col]))
+			cage_board[row][col] = cage_board[row][col] + (' ' * (max_res + len(COLORS[0]) - len(cage_board[row][col]))) + ENDC
 			
-	return cage_board
+	return cage_board, color_board
 
 def check_valid(board):
 	n = len(board)
@@ -222,8 +239,8 @@ def init_userboard(board, cage_board):
 
 def init_cages(board, difficulty):
 	cages = build_c(board, difficulty)
-	cage_board = build_cb(cages, len(board))
-	return cages, cage_board
+	cage_board, color_board = build_cb(cages, len(board))
+	return cages, cage_board, color_board
 
 def start():
 	show_help_message()
@@ -243,15 +260,15 @@ def start():
 
 def main():
 	board, d = start()
-	cages, cage_board = init_cages(board, d)
+	cages, cage_board, color_board = init_cages(board, d)
 	userboard = init_userboard(board, cage_board)
 	undo = []
 	redo = []
 
 	start_time = time.time()
 	while not is_win(userboard, board):
-		print(ListBoard(cage_board))
-		print(ListBoard(userboard))
+		print(ListBoard(cage_board, False))
+		print(ListBoard(userboard, True, color_board))
 		try:
 			vals = raw_input('enter value as `row,col,val`: ').split(',')
 			if vals[0].lower() == CAGES_CMD:
@@ -334,7 +351,7 @@ def test_time(board_size, difficulty):
 	end_time = time.time()
 	print('cages time: {}'.format(end_time - start_time))
 
-	cage_board = build_cb(cages, len(board))
+	cage_board, color_board = build_cb(cages, len(board))
 
 	print(ListBoard(cage_board))
 	print(ListBoard(board))
@@ -351,7 +368,7 @@ def test_difficulty(board_size=5, boards_to_test=100):
 
 			board = build_b(board_size)
 			cages = build_c(board, diff)
-			cage_board = build_cb(cages, len(board))
+			cage_board, color_board = build_cb(cages, len(board))
 
 			for j in range(len(cage_board)):
 				for i in range(len(cage_board[j])):
