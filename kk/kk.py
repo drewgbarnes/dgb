@@ -7,6 +7,7 @@ REDO_CMD = 'x'
 QUIT_CMD = 'q'
 RESET_CMD = 'r'
 REPLAY_CMD = 'a'
+SAVE = False
 
 def show_help_message():
 	print('************************************')
@@ -247,6 +248,7 @@ def main():
 	undo = []
 	redo = []
 
+	start_time = time.time()
 	while not is_win(userboard, board):
 		print(ListBoard(cage_board))
 		print(ListBoard(userboard))
@@ -279,8 +281,9 @@ def main():
 			else:
 				row, col, val = int(vals[0]), int(vals[1]), int(vals[2])
 				try:
-					undo.append(((row, col), userboard[row][col]))
+					oldval = userboard[row][col]
 					userboard[row][col] = val
+					undo.append(((row, col), oldval))
 				except:
 					print('bad row or col!')
 					pass
@@ -288,14 +291,33 @@ def main():
 			print('try again: ')
 			pass
 
+	end_time = time.time()
+	total_time = int(end_time - start_time)
 	print('************************************')
 	print('you won!')
 	print(ListBoard(userboard))
-	print('you won!')
+	print('it took you {}:{} to beat this {}x{} board on difficulty {}'.format(total_time / 60, total_time % 60, len(board), len(board), d))
 	print('************************************')
+
+	again = 'y'
+	if not SAVE:
+		again = raw_input('do you want to save this board?: \'y\' for yes, anything else no: ')
+	if again == 'y':
+		save_playthrough_to_file(board, cages, d, total_time)
+
 	again = raw_input('want to play again? \'a\' for again, anything else to quit: ')
 	if again == 'a':
 		main()
+
+def read_playthroughs_from_file():
+	pass
+
+def save_playthrough_to_file(board, cages, difficulty, time):
+	file = open('kk{}.txt'.format(len(board)), 'a')
+	file.write(str(board) + '\n')
+	file.write(str(cages) + '\n')
+	file.write(str(difficulty) + '\n')
+	file.write(str(time) + '\n')
 
 def test_time(board_size, difficulty):
 	print('testing time it takes to generate a board of size {} with difficulty {}'.format(board_size, difficulty))
