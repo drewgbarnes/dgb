@@ -276,7 +276,7 @@ def main():
 				print(cages)
 			elif vals[0].lower() == QUIT_CMD:
 				print('quitting! here is the answer:')
-				print(ListBoard(board))
+				print(ListBoard(board, True, color_board))
 				exit()
 			elif vals[0].lower() == RESET_CMD:
 				print('restarting game with current board')
@@ -298,11 +298,13 @@ def main():
 			else:
 				row, col, val = int(vals[0]), int(vals[1]), int(vals[2])
 				try:
+					if val > len(board):
+						raise Exception
 					oldval = userboard[row][col]
 					userboard[row][col] = val
 					undo.append(((row, col), oldval))
 				except:
-					print('bad row or col!')
+					print('bad row, col or val!')
 					pass
 		except (ValueError, IndexError) as e:
 			print('try again: ')
@@ -312,7 +314,7 @@ def main():
 	total_time = int(end_time - start_time)
 	print('************************************')
 	print('you won!')
-	print(ListBoard(userboard))
+	print(ListBoard(userboard, True, color_board))
 	print('it took you {}:{} to beat this {}x{} board on difficulty {}'.format(total_time / 60, total_time % 60, len(board), len(board), d))
 	print('************************************')
 
@@ -330,11 +332,11 @@ def read_playthroughs_from_file():
 	pass
 
 def save_playthrough_to_file(board, cages, difficulty, time):
-	file = open('kk{}.txt'.format(len(board)), 'a')
-	file.write(str(board) + '\n')
-	file.write(str(cages) + '\n')
-	file.write(str(difficulty) + '\n')
-	file.write(str(time) + '\n')
+	with open('kk{}.txt'.format(len(board)), 'a') as file:
+		file.write(str(board) + '\n')
+		file.write(str(cages) + '\n')
+		file.write(str(difficulty) + '\n')
+		file.write(str(time) + '\n')
 
 def test_time(board_size, difficulty):
 	print('testing time it takes to generate a board of size {} with difficulty {}'.format(board_size, difficulty))
