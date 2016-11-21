@@ -60,8 +60,8 @@ def build_cb(cages, n):
 	color_board = {}
 	cage_board = [['#' for x in range(n)] for i in range(n)]
 	color_cages = {}
-	color = random.choice(COLORS)
 	for cage in cages:
+		color = random.choice(COLORS)
 		if len(cage) == 1:
 			color = SOLO_COLOR
 		else:
