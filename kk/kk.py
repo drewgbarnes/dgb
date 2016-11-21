@@ -59,22 +59,24 @@ def build_cb(cages, n):
 	max_res = 0
 	color_board = {}
 	cage_board = [['#' for x in range(n)] for i in range(n)]
-	oldcolor = color = random.choice(COLORS)
+	color_cages = {}
+	color = random.choice(COLORS)
 	for cage in cages:
-		while color == oldcolor:
-			color = random.choice(COLORS)
 		if len(cage) == 1:
 			color = SOLO_COLOR
-		oldcolor = color
+		else:
+			if str(cages[cage][0]) + cages[cage][1] in color_cages:
+				while color in color_cages[str(cages[cage][0]) + cages[cage][1]]:
+					color = random.choice(COLORS)
+			else:
+				color = random.choice(COLORS)
+			color_cages[str(cages[cage][0]) + cages[cage][1]] = color
 		for cell in cage:
 			if len(str(cages[cage][0])) + 1 > max_res:
 				max_res = len(str(cages[cage][0])) + 1
 			cage_board[cell[0]][cell[1]] = color + str(cages[cage][0]) + cages[cage][1]
 			if cell[0] in color_board:
-				# if cell[1] in color_board[cell[0]]:
 				color_board[cell[0]][cell[1]] = color
-				# else:	
-					# color_board[cell[0]] = {cell[1]: color}
 			else:
 				color_board[cell[0]] = {cell[1]: color}
 
