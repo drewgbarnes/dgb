@@ -11,6 +11,7 @@ SAVE = False
 
 COLORS = ['\033[9{}m'.format(x) for x in range(8)]
 SOLO_COLOR = COLORS.pop()
+BAD_COLOR = '\033[41m'
 COLORS += ['\033[3{}m'.format(x) for x in range(1,7,1)]
 ENDC = '\033[0m'
 
@@ -18,19 +19,24 @@ def show_help_message():
 	print('************************************')
 	print('welcome to kk. this is the help menu')
 	print('{}: show this menu'.format(HELP_CMD))
-	print('{}: show cages (useful when adjacent cages share same values)'.format(CAGES_CMD))
 	print('{}: undo (can undo repeatedly)'.format(UNDO_CMD))
 	print('{}: redo (can redo repeatedly)'.format(REDO_CMD))
+	print('{}: show cages (useful when adjacent cages share same values)'.format(CAGES_CMD))
 	print('{}: quit the game'.format(QUIT_CMD))
 	print('{}: reset the current game with the same board'.format(RESET_CMD))
 	print('{}: play again, re-entering your board size and difficulty'.format(REPLAY_CMD))
 	print('************************************')
 
 class ListBoard:
-	def __init__(self, b, normal=True, color=None):
+	def __init__(self, b, normal=True, color=None, mistakes=True):
 		self.b = b
 		self.normal = normal
 		self.color = color
+		self.mistakes = mistakes
+		self.inverse = copy.deepcopy(self.b)
+		for i in range(len(self.inverse)):
+			for j in range(len(self.inverse)):
+				self.inverse[j][i] = self.b[i][j]
 	def __str__(self):
 		max_res = 0
 		for i in self.b:
@@ -49,7 +55,11 @@ class ListBoard:
 			for z in range(len(self.b[i])):
 				guy = str(self.b[i][z])
 				if self.color:
-					guy = self.color[i][z] + guy + ENDC
+					the_color = self.color[i][z]
+					if self.mistakes:
+						if int(guy) != 0 and (self.b[i].count(int(guy)) > 1 or self.inverse[z].count(int(guy)) > 1):
+							the_color = BAD_COLOR
+					guy = the_color + guy + ENDC
 				row += guy + ' '
 			s += str(x) + ' ' + '[ '+ row + ']' + '\n'
 			x += 1
