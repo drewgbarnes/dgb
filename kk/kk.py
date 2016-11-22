@@ -281,6 +281,7 @@ def guess(userboard, cages):
 	for i in range(len(userboard)):
 		remaining_ans_for_row = set(playable_numbers).difference(set(userboard[i]))
 		remaining_ans_for_col = set(playable_numbers).difference(set(inverse[i]))
+		if len(remaining_ans_for_row) == 1:
 			return i, userboard[i].index(0), remaining_ans_for_row.pop()
 		if len(remaining_ans_for_col) == 1:
 			return inverse[i].index(0), i, remaining_ans_for_col.pop()
