@@ -270,19 +270,91 @@ def start():
 	board = build_b(size)
 	return board, diff
 
+def guess(userboard, cages):
+	inverse = copy.deepcopy(userboard)
+	for i in range(len(inverse)):
+			for j in range(len(inverse)):
+				inverse[j][i] = userboard[i][j]
+
+	playable_numbers = list(range(1, len(userboard) + 1, 1))
+
+	for i in range(len(userboard)):
+		remaining_ans_for_row = set(playable_numbers).difference(set(userboard[i]))
+		remaining_ans_for_col = set(playable_numbers).difference(set(inverse[i]))
+			return i, userboard[i].index(0), remaining_ans_for_row.pop()
+		if len(remaining_ans_for_col) == 1:
+			return inverse[i].index(0), i, remaining_ans_for_col.pop()
+
+	for i in range(len(userboard)):
+		row = userboard[i]
+		for j in range(len(userboard)):
+			col = inverse[j]
+			remaining_ans_for_row = set(playable_numbers).difference(set(row))
+			remaining_ans_for_col = set(playable_numbers).difference(set(col))
+			row_col_intersect = set(remaining_ans_for_col).intersection(set(remaining_ans_for_row))
+			if len(row_col_intersect) == 1 and userboard[i][j] == 0:
+				return i, j, row_col_intersect.pop()
+
+	for i in range(len(userboard)):
+		row = userboard[i]
+		other_rows  = list(range(len(userboard)))
+		other_rows.remove(i)
+		remaining_ans_for_row = set(playable_numbers).difference(set(row))
+		for potential in remaining_ans_for_row:
+			potential_indexes = list(range(len(userboard)))
+			for r in range(len(row)):
+				if row[r] != 0 and r in potential_indexes:
+					potential_indexes.remove(r)
+			for other_row in other_rows:
+				for r in range(len(userboard)):
+					if userboard[other_row][r] == potential and r in potential_indexes:
+						potential_indexes.remove(r)
+			if len(potential_indexes) == 1:
+				import pdb;pdb.set_trace()
+				return i, potential_indexes[0], potential
+
+	# for i in range(len(userboard)):
+	# 	col = inverse[i]
+	# 	other_cols  = list(range(len(userboard)))
+	# 	other_cols.remove(i)
+	# 	remaining_ans_for_col = set(playable_numbers).difference(set(col))
+	# 	for potential in remaining_ans_for_col:
+	# 		# one = one_spot_for_potential(potential, userboard, cages)
+	# 		potential_indexes = list(range(len(userboard)))
+	# 		for r in range(len(col)):
+	# 			if col[r] != 0 and r in potential_indexes:
+	# 				potential_indexes.remove(r)
+	# 		for other_col in other_cols:
+	# 			for r in range(len(userboard)):
+	# 				if userboard[other_col][r] == potential and r in potential_indexes:
+	# 					potential_indexes.remove(r)
+	# 		if len(potential_indexes) == 1:
+	# 			import pdb;pdb.set_trace()
+	# 			return i, potential_indexes[0], potential
+
+
 def main():
 	board, d = start()
 	cages, cage_board, color_board = init_cages(board, d)
 	userboard = init_userboard(board, cage_board)
 	undo = []
 	redo = []
+	INTERACTIVE = False
 
 	start_time = time.time()
 	while not is_win(userboard, board):
 		print(ListBoard(cage_board, False))
 		print(ListBoard(userboard, True, color_board))
 		try:
-			vals = raw_input('enter value as `row,col,val`: ').split(',')
+			if INTERACTIVE:
+				vals = raw_input('enter value as `row,col,val`: ').split(',')
+			else:
+				print('making move')
+				vals = guess(userboard, cages)
+				if vals is None:
+					main()
+				vals = str(vals[0]), str(vals[1]), str(vals[2])
+				enter = raw_input('enter to continue')
 			if vals[0].lower() == CAGES_CMD:
 				print('cages:')
 				print(cages)
