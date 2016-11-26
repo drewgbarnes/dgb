@@ -57,6 +57,8 @@ class ListBoard:
 				if self.color:
 					the_color = self.color[i][z]
 					if self.mistakes:
+						#TODO: show when you have bad math in a cage
+						#TODO: an option to show what #s are left in a col or row
 						if int(guy) != 0 and (self.b[i].count(int(guy)) > 1 or self.inverse[z].count(int(guy)) > 1):
 							the_color = BAD_COLOR
 					guy = the_color + guy + ENDC
@@ -296,6 +298,7 @@ def guess(userboard, cages):
 			if len(row_col_intersect) == 1 and userboard[i][j] == 0:
 				return i, j, row_col_intersect.pop()
 
+	#TODO: this is broken fix it
 	for i in range(len(userboard)):
 		row = userboard[i]
 		other_rows  = list(range(len(userboard)))
@@ -340,7 +343,7 @@ def main():
 	userboard = init_userboard(board, cage_board)
 	undo = []
 	redo = []
-	INTERACTIVE = False
+	INTERACTIVE = True
 
 	start_time = time.time()
 	while not is_win(userboard, board):
