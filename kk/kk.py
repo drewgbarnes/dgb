@@ -7,32 +7,41 @@ REDO_CMD = 'x'
 QUIT_CMD = 'q'
 RESET_CMD = 'r'
 REPLAY_CMD = 'a'
+ROW_CMD = 'r'
+COL_CMD = 'c'
 SAVE = False
+PLACEHOLDER = '*'
 
 COLORS = ['\033[9{}m'.format(x) for x in range(8)]
 SOLO_COLOR = COLORS.pop()
 BAD_COLOR = '\033[41m'
+BAD_CAGE_COLOR = '\033[45m'
 COLORS += ['\033[3{}m'.format(x) for x in range(1,7,1)]
 ENDC = '\033[0m'
 
 def show_help_message():
+	print(COLORS[2]+'welcome to kk. this is the help menu'+ENDC)
 	print('************************************')
-	print('welcome to kk. this is the help menu')
 	print('{}: show this menu'.format(HELP_CMD))
 	print('{}: undo (can undo repeatedly)'.format(UNDO_CMD))
 	print('{}: redo (can redo repeatedly)'.format(REDO_CMD))
-	print('{}: show cages (useful when adjacent cages share same values)'.format(CAGES_CMD))
+	print('#{} (0{} for example): show numbers that are still needed in a row'.format(ROW_CMD, ROW_CMD))
+	print('#{} (0{} for example): show numbers that are still needed in a col'.format(COL_CMD, COL_CMD))
 	print('{}: quit the game'.format(QUIT_CMD))
 	print('{}: reset the current game with the same board'.format(RESET_CMD))
 	print('{}: play again, re-entering your board size and difficulty'.format(REPLAY_CMD))
+	print('{}: show cages (useful when adjacent cages share same values)'.format(CAGES_CMD))
+	print(BAD_COLOR+'color when the same number occurs more than once in a row/col'+ENDC)
+	print(BAD_CAGE_COLOR+'color when a cage does not have correct math'+ENDC)
 	print('************************************')
 
 class ListBoard:
-	def __init__(self, b, normal=True, color=None, mistakes=True):
+	def __init__(self, b, normal=True, color=None, cages=None, mistakes=True):
 		self.b = b
 		self.normal = normal
 		self.color = color
 		self.mistakes = mistakes
+		self.cages = cages
 		self.inverse = copy.deepcopy(self.b)
 		for i in range(len(self.inverse)):
 			for j in range(len(self.inverse)):
@@ -57,10 +66,34 @@ class ListBoard:
 				if self.color:
 					the_color = self.color[i][z]
 					if self.mistakes:
-						#TODO: show when you have bad math in a cage
-						#TODO: an option to show what #s are left in a col or row
-						if int(guy) != 0 and (self.b[i].count(int(guy)) > 1 or self.inverse[z].count(int(guy)) > 1):
+						if guy != PLACEHOLDER and (self.b[i].count(int(guy)) > 1 or self.inverse[z].count(int(guy)) > 1):
 							the_color = BAD_COLOR
+					if self.cages:
+						for cage in self.cages:
+							if len(cage) > 1 and (i,z) in cage:
+								expected_result = self.cages[cage][0]
+								operator = self.cages[cage][1]
+								vals_to_math = []
+								finished_cage = True
+								for cell in cage:
+									if self.b[cell[0]][cell[1]] == PLACEHOLDER:
+										finished_cage = False
+										break
+									vals_to_math.append(self.b[cell[0]][cell[1]])
+
+								if finished_cage:
+									vals_to_math.sort()
+									vals_to_math.reverse()
+									eval_str = ''
+									for j in range(len(vals_to_math)):
+										val = vals_to_math[j]
+										eval_str += str(val * 1.0)
+										if j != len(cage) - 1:
+											eval_str += operator
+									cage_result = eval(eval_str)
+									cage_result = abs(cage_result)
+									if cage_result != expected_result:
+										the_color = BAD_CAGE_COLOR
 					guy = the_color + guy + ENDC
 				row += guy + ' '
 			s += str(x) + ' ' + '[ '+ row + ']' + '\n'
@@ -248,7 +281,7 @@ def init_userboard(board, cage_board):
 	for j in range(len(userboard)):
 		for i in range(len(userboard[j])):
 			if cage_board[i][j].count('.') != 1:
-				userboard[i][j] = 0
+				userboard[i][j] = PLACEHOLDER
 	return userboard
 
 def init_cages(board, difficulty):
@@ -295,7 +328,7 @@ def guess(userboard, cages):
 			remaining_ans_for_row = set(playable_numbers).difference(set(row))
 			remaining_ans_for_col = set(playable_numbers).difference(set(col))
 			row_col_intersect = set(remaining_ans_for_col).intersection(set(remaining_ans_for_row))
-			if len(row_col_intersect) == 1 and userboard[i][j] == 0:
+			if len(row_col_intersect) == 1 and userboard[i][j] == PLACEHOLDER:
 				return i, j, row_col_intersect.pop()
 
 	#TODO: this is broken fix it
@@ -347,8 +380,8 @@ def main():
 
 	start_time = time.time()
 	while not is_win(userboard, board):
-		print(ListBoard(cage_board, False))
-		print(ListBoard(userboard, True, color_board))
+		print(ListBoard(b=cage_board, normal=False))
+		print(ListBoard(b=userboard, normal=True, color=color_board, cages=cages, mistakes=True))
 		try:
 			if INTERACTIVE:
 				vals = raw_input('enter value as `row,col,val`: ').split(',')
@@ -364,7 +397,7 @@ def main():
 				print(cages)
 			elif vals[0].lower() == QUIT_CMD:
 				print('quitting! here is the answer:')
-				print(ListBoard(board, True, color_board))
+				print(ListBoard(b=board, normal=True, color=color_board))
 				exit()
 			elif vals[0].lower() == RESET_CMD:
 				print('restarting game with current board')
@@ -383,10 +416,23 @@ def main():
 				main()
 			elif vals[0].lower() == HELP_CMD:
 				show_help_message()
+			elif len(vals[0]) > 1:
+				if vals[0][0].isdigit() and vals[0][1].lower() == COL_CMD:
+					playable_numbers = list(range(1, len(userboard) + 1, 1))
+					inverse = copy.deepcopy(userboard)
+					for i in range(len(inverse)):
+							for j in range(len(inverse)):
+								inverse[j][i] = userboard[i][j]
+					remaining_ans_for_col = set(playable_numbers).difference(set(inverse[int(vals[0][0])]))
+					print('Numbers remaining in column {}: {}'.format(vals[0][0], list(remaining_ans_for_col)))
+				elif vals[0][0].isdigit() and vals[0][1].lower() == ROW_CMD:
+					playable_numbers = list(range(1, len(userboard) + 1, 1))
+					remaining_ans_for_row = set(playable_numbers).difference(set(userboard[int(vals[0][0])]))
+					print('Numbers remaining in row {}: {}'.format(vals[0][0], list(remaining_ans_for_row)))
 			else:
 				row, col, val = int(vals[0]), int(vals[1]), int(vals[2])
 				try:
-					if val > len(board):
+					if val > len(board) or val < 1:
 						raise Exception
 					oldval = userboard[row][col]
 					userboard[row][col] = val
@@ -402,7 +448,7 @@ def main():
 	total_time = int(end_time - start_time)
 	print('************************************')
 	print('you won!')
-	print(ListBoard(userboard, True, color_board))
+	print(ListBoard(b=userboard, normal=True, color=color_board))
 	print('it took you {}:{} to beat this {}x{} board on difficulty {}'.format(total_time / 60, total_time % 60, len(board), len(board), d))
 	print('************************************')
 
