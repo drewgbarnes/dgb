@@ -19,6 +19,7 @@ BAD_CAGE_COLOR = '\033[45m'
 COLORS += ['\033[3{}m'.format(x) for x in range(1,7,1)]
 ENDC = '\033[0m'
 
+
 def show_help_message():
 	print(COLORS[2]+'welcome to kk. this is the help menu'+ENDC)
 	print('************************************')
@@ -34,6 +35,7 @@ def show_help_message():
 	print(BAD_COLOR+'color when the same number occurs more than once in a row/col'+ENDC)
 	print(BAD_CAGE_COLOR+'color when a cage does not have correct math'+ENDC)
 	print('************************************')
+
 
 class ListBoard:
 	def __init__(self, b, normal=True, color=None, cages=None, mistakes=True):
@@ -100,6 +102,7 @@ class ListBoard:
 			x += 1
 		return s
 
+
 def build_cb(cages, n):
 	max_res = 0
 	color_board = {}
@@ -132,6 +135,7 @@ def build_cb(cages, n):
 			
 	return cage_board, color_board
 
+
 def check_valid(board):
 	n = len(board)
 
@@ -152,6 +156,7 @@ def check_valid(board):
 		return True, 0
 	else:
 		return False, filled_ind + 1
+
 
 # ~10s where n=10
 # ~130s where n=11
@@ -182,6 +187,12 @@ def build_b(n):
 		is_valid, bad_ind = check_valid(board)
 
 	return board
+
+
+def has_ambiguous_cages(cages):
+	#TODO: prevent board where cages are ambiguous (2* in one row and 2* in another row but at same columns)
+	return False
+
 
 def build_c(board, d):
 	n = len(board)
@@ -269,12 +280,14 @@ def build_c(board, d):
 
 	return cages
 
+
 def is_win(user_board, answer_board):
 	for i in range(len(user_board)):
 		for j in range(len(user_board[i])):
 			if user_board[i][j] != answer_board[i][j]:
 				return False
 	return True
+
 
 def init_userboard(board, cage_board):
 	userboard = copy.deepcopy(board)
@@ -284,26 +297,39 @@ def init_userboard(board, cage_board):
 				userboard[i][j] = PLACEHOLDER
 	return userboard
 
+
 def init_cages(board, difficulty):
 	cages = build_c(board, difficulty)
+	while has_ambiguous_cages(cages):
+		cages = build_c(board, difficulty)
 	cage_board, color_board = build_cb(cages, len(board))
 	return cages, cage_board, color_board
 
-def start():
-	show_help_message()
+
+def start(interactive, ai_size=None, ai_diff=None):
+	if interactive:
+		show_help_message()
 	done = False
-	while not done:
-		try:
-			size = raw_input('enter board size: ')
-			diff = int(raw_input('enter difficulty between 1 and ' + size + ': '))
-			size = int(size)
-			done = True
-		except:
-			print('try again: ')
-			pass
+	size = None
+	if not ai_size:
+		while not done:
+			try:
+				size = raw_input('enter board size: ')
+				size = int(size)
+				diff = int(raw_input('enter difficulty between 1 and ' + str(size) + ': '))
+				done = True
+			except ValueError:
+				if size and size.lower() == QUIT_CMD:
+					exit()
+				print('try again: ')
+				pass
+	else:
+		size = ai_size
+		diff = ai_diff
 
 	board = build_b(size)
 	return board, diff
+
 
 def guess(userboard, cages):
 	inverse = copy.deepcopy(userboard)
@@ -313,14 +339,16 @@ def guess(userboard, cages):
 
 	playable_numbers = list(range(1, len(userboard) + 1, 1))
 
+	#if only 1 number left to be played in a row or column, fill it in
 	for i in range(len(userboard)):
 		remaining_ans_for_row = set(playable_numbers).difference(set(userboard[i]))
 		remaining_ans_for_col = set(playable_numbers).difference(set(inverse[i]))
 		if len(remaining_ans_for_row) == 1:
-			return i, userboard[i].index(0), remaining_ans_for_row.pop()
+			return i, userboard[i].index(PLACEHOLDER), remaining_ans_for_row.pop()
 		if len(remaining_ans_for_col) == 1:
-			return inverse[i].index(0), i, remaining_ans_for_col.pop()
+			return inverse[i].index(PLACEHOLDER), i, remaining_ans_for_col.pop()
 
+	#if a row and col's intersection only needs 1 number, fill it in
 	for i in range(len(userboard)):
 		row = userboard[i]
 		for j in range(len(userboard)):
@@ -331,7 +359,7 @@ def guess(userboard, cages):
 			if len(row_col_intersect) == 1 and userboard[i][j] == PLACEHOLDER:
 				return i, j, row_col_intersect.pop()
 
-	#TODO: this is broken fix it
+	#if we have only 1 possible index in a row that a number can go, fill it in
 	for i in range(len(userboard)):
 		row = userboard[i]
 		other_rows  = list(range(len(userboard)))
@@ -340,43 +368,83 @@ def guess(userboard, cages):
 		for potential in remaining_ans_for_row:
 			potential_indexes = list(range(len(userboard)))
 			for r in range(len(row)):
-				if row[r] != 0 and r in potential_indexes:
+				#remove filled in rows 
+				if row[r] != PLACEHOLDER and r in potential_indexes:
 					potential_indexes.remove(r)
 			for other_row in other_rows:
 				for r in range(len(userboard)):
 					if userboard[other_row][r] == potential and r in potential_indexes:
 						potential_indexes.remove(r)
 			if len(potential_indexes) == 1:
-				import pdb;pdb.set_trace()
 				return i, potential_indexes[0], potential
 
-	# for i in range(len(userboard)):
-	# 	col = inverse[i]
-	# 	other_cols  = list(range(len(userboard)))
-	# 	other_cols.remove(i)
-	# 	remaining_ans_for_col = set(playable_numbers).difference(set(col))
-	# 	for potential in remaining_ans_for_col:
-	# 		# one = one_spot_for_potential(potential, userboard, cages)
-	# 		potential_indexes = list(range(len(userboard)))
-	# 		for r in range(len(col)):
-	# 			if col[r] != 0 and r in potential_indexes:
-	# 				potential_indexes.remove(r)
-	# 		for other_col in other_cols:
-	# 			for r in range(len(userboard)):
-	# 				if userboard[other_col][r] == potential and r in potential_indexes:
-	# 					potential_indexes.remove(r)
-	# 		if len(potential_indexes) == 1:
-	# 			import pdb;pdb.set_trace()
-	# 			return i, potential_indexes[0], potential
+	#same as above but for cols
+	for i in range(len(userboard)):
+		col = inverse[i]
+		other_cols  = list(range(len(userboard)))
+		other_cols.remove(i)
+		remaining_ans_for_col = set(playable_numbers).difference(set(col))
+		for potential in remaining_ans_for_col:
+			potential_indexes = list(range(len(userboard)))
+			for r in range(len(col)):
+				if col[r] != PLACEHOLDER and r in potential_indexes:
+					potential_indexes.remove(r)
+			for other_col in other_cols:
+				for r in range(len(userboard)):
+					if userboard[r][other_col] == potential and r in potential_indexes:
+						potential_indexes.remove(r)
+			if len(potential_indexes) == 1:
+				return potential_indexes[0], i, potential
+
+	#if a cage has everything filled in except 1 cell, the cage can be filled in
+	for cage in cages:
+		if cages[cage][1] != '.':
+			current_calculation_for_cage = []
+			size_of_cage = len(cage)
+			op = cages[cage][1]
+			ans_for_cage = cages[cage][0]
+			for cell in cage:
+				guy = userboard[cell[0]][cell[1]]
+				if guy != PLACEHOLDER:
+					current_calculation_for_cage.append(guy)
+				else:
+					cell_in_cage_to_finish = cell
+			if len(current_calculation_for_cage) == size_of_cage - 1:
+				eval_str = ''
+				for i in range(len(current_calculation_for_cage)):
+					val = current_calculation_for_cage[i]
+					eval_str += str(val * 1.0)
+					eval_str += op
+
+				potential_answers = set(playable_numbers)
+				correct_answers = []
+				for potential_answer in potential_answers:
+					if op == '/':
+						cage_result = max(potential_answer, current_calculation_for_cage[0]) / (min(potential_answer, current_calculation_for_cage[0]) * 1.0)
+					else:
+						cage_result = eval(eval_str + str(potential_answer * 1.0))
+					cage_result = abs(cage_result)
+					if cage_result == ans_for_cage:
+						correct_answers.append(potential_answer)
+				
+				#need to check if the correct answers do not already appear in its col/rol
+				for correct_answer in copy.deepcopy(correct_answers):
+					if correct_answer in userboard[cell_in_cage_to_finish[0]] or correct_answer in inverse[cell_in_cage_to_finish[1]]:
+						correct_answers.remove(correct_answer)
+
+				if len(correct_answers) == 1:
+					return cell_in_cage_to_finish[0], cell_in_cage_to_finish[1], correct_answers[0]
 
 
-def main():
-	board, d = start()
+
+def main(ai_size=None, ai_diff=None):
+	INTERACTIVE = False
+	KEEP_RUNNING_AI = False
+	board, d = start(INTERACTIVE, ai_size, ai_diff)
 	cages, cage_board, color_board = init_cages(board, d)
 	userboard = init_userboard(board, cage_board)
 	undo = []
 	redo = []
-	INTERACTIVE = True
 
 	start_time = time.time()
 	while not is_win(userboard, board):
@@ -389,9 +457,15 @@ def main():
 				print('making move')
 				vals = guess(userboard, cages)
 				if vals is None:
-					main()
-				vals = str(vals[0]), str(vals[1]), str(vals[2])
-				enter = raw_input('enter to continue')
+					print('ai not smart enough to guess')
+					vals = raw_input('enter value as `row,col,val`: ').split(',')
+					# if KEEP_RUNNING_AI:
+					# 	main(len(board), d)
+					# else:
+					# 	main()
+				else:
+					vals = str(vals[0]), str(vals[1]), str(vals[2])
+					enter = raw_input('enter to continue')
 			if vals[0].lower() == CAGES_CMD:
 				print('cages:')
 				print(cages)
@@ -452,18 +526,23 @@ def main():
 	print('it took you {}:{} to beat this {}x{} board on difficulty {}'.format(total_time / 60, total_time % 60, len(board), len(board), d))
 	print('************************************')
 
-	again = 'y'
-	if not SAVE:
-		again = raw_input('do you want to save this board?: \'y\' for yes, anything else no: ')
-	if again == 'y':
-		save_playthrough_to_file(board, cages, d, total_time)
+	if INTERACTIVE:
+		again = 'y'
+		if not SAVE:
+			again = raw_input('do you want to save this board?: \'y\' for yes, anything else no: ')
+		if again == 'y':
+			save_playthrough_to_file(board, cages, d, total_time)
 
-	again = raw_input('want to play again? \'a\' for again, anything else to quit: ')
-	if again == 'a':
-		main()
+		again = raw_input('want to play again? \'a\' for again, anything else to quit: ')
+		if again == 'a':
+			main()
+	else:
+		main(ai_size, ai_diff)
+
 
 def read_playthroughs_from_file():
 	pass
+
 
 def save_playthrough_to_file(board, cages, difficulty, time):
 	with open('kk{}.txt'.format(len(board)), 'a') as file:
@@ -471,6 +550,7 @@ def save_playthrough_to_file(board, cages, difficulty, time):
 		file.write(str(cages) + '\n')
 		file.write(str(difficulty) + '\n')
 		file.write(str(time) + '\n')
+
 
 def test_time(board_size, difficulty):
 	print('testing time it takes to generate a board of size {} with difficulty {}'.format(board_size, difficulty))
@@ -491,6 +571,7 @@ def test_time(board_size, difficulty):
 
 	print(ListBoard(cage_board))
 	print(ListBoard(board))
+
 
 def test_difficulty(board_size=5, boards_to_test=100):
 	#number of squares filled ~= difficulty
