@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+    <title>Title</title>
+    <!-- CSS  -->
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+    <style type="text/css">
+    body {
+        min-height: 100%;
+    }
+    
+    img,
+    video {
+        max-height: 300px;
+        max-width: 300px;
+    }
+    </style>
+</head>
+
+<body>
+    <form>
+        <div class="input-field">
+            <input id="search" type="search">
+            <label for="search"><i>search</i></label>
+            <i onclick="clearSearch()">close</i>
+        </div>
+    </form>
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                {% for item in total %}
+                <div>
+                    <p>{{item}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- the footer -->
+    <!-- scripts -->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript">
+    $('input#search').bind('keypress', function(e) {
+        // Escape.
+        if (e.keyCode === 27) {
+            clearSearch();
+            return;
+        } else if (e.keyCode === 13) {
+            // enter
+            var val = document.getElementById('search').value;
+            window.location.href = "/search?query=" + val;
+            return false;
+        }
+    });
+
+    function clearSearch() {
+        $('input#search').val('');
+        $('input#search').blur();
+    }
+    </script>
+</body>
+
+</html>

@@ -9,6 +9,7 @@ RESET_CMD = 'r'
 REPLAY_CMD = 'a'
 ROW_CMD = 'r'
 COL_CMD = 'c'
+TOTAL_CMD = 't'
 SAVE = False
 PLACEHOLDER = '*'
 
@@ -21,7 +22,7 @@ ENDC = '\033[0m'
 
 
 def show_help_message():
-	print(COLORS[2]+'welcome to kk. this is the help menu'+ENDC)
+	print(COLORS[2] + 'welcome to kk. this is the help menu' + ENDC)
 	print('************************************')
 	print('{}: show this menu'.format(HELP_CMD))
 	print('{}: undo (can undo repeatedly)'.format(UNDO_CMD))
@@ -32,8 +33,8 @@ def show_help_message():
 	print('{}: reset the current game with the same board'.format(RESET_CMD))
 	print('{}: play again, re-entering your board size and difficulty'.format(REPLAY_CMD))
 	print('{}: show cages (useful when adjacent cages share same values)'.format(CAGES_CMD))
-	print(BAD_COLOR+'color when the same number occurs more than once in a row/col'+ENDC)
-	print(BAD_CAGE_COLOR+'color when a cage does not have correct math'+ENDC)
+	print(BAD_COLOR + 'color when the same number occurs more than once in a row/col' + ENDC)
+	print(BAD_CAGE_COLOR + 'color when a cage does not have correct math' + ENDC)
 	print('************************************')
 
 
@@ -212,10 +213,7 @@ def build_c(board, d):
 	cages[(choice,)] = (board[choice[0]][choice[1]], '.')
 
 	while len(choices):
-		if random.randint(0, 2*d) == d:
-			op = '.'
-		else:
-			op = random.choice(ops)
+		op = '.' if random.randint(0, 2*d) == d else random.choice(ops)
 		if op in ['-', '/']:
 			cage_len = 2
 		elif len(choices) == 1 or op == '.':
@@ -331,6 +329,31 @@ def start(interactive, ai_size=None, ai_diff=None):
 	return board, diff
 
 
+def guess_one_index(userboard, userboard_or_inverse, playable_numbers):
+	for i in range(len(userboard)):
+		row_or_col = userboard_or_inverse[i]
+		other_rows_or_cols  = list(range(len(userboard)))
+		other_rows_or_cols.remove(i)
+		remaining_ans_for_row_or_col = set(playable_numbers).difference(set(row_or_col))
+		for potential in remaining_ans_for_row_or_col:
+			potential_indexes = list(range(len(userboard)))
+			for r in range(len(row_or_col)):
+				#remove filled in rows 
+				if row_or_col[r] != PLACEHOLDER and r in potential_indexes:
+					potential_indexes.remove(r)
+			for other_row_or_col in other_rows_or_cols:
+				for r in range(len(userboard)):
+					guy = userboard[r][other_row_or_col] if userboard != userboard_or_inverse else userboard[other_row_or_col][r]					
+					if guy == potential and r in potential_indexes:
+						potential_indexes.remove(r)
+			if len(potential_indexes) == 1:
+				if userboard != userboard_or_inverse:
+					print('all cols other than {} already have {}'.format(i, potential))
+					return potential_indexes[0], i, potential
+				print('all rows other than {} already have {}'.format(i, potential))
+				return i, potential_indexes[0], potential
+
+
 def guess(userboard, cages):
 	inverse = copy.deepcopy(userboard)
 	for i in range(len(inverse)):
@@ -344,9 +367,13 @@ def guess(userboard, cages):
 		remaining_ans_for_row = set(playable_numbers).difference(set(userboard[i]))
 		remaining_ans_for_col = set(playable_numbers).difference(set(inverse[i]))
 		if len(remaining_ans_for_row) == 1:
-			return i, userboard[i].index(PLACEHOLDER), remaining_ans_for_row.pop()
+			guy = remaining_ans_for_row.pop()
+			print('row {} needs only {}'.format(i, guy))
+			return i, userboard[i].index(PLACEHOLDER), guy
 		if len(remaining_ans_for_col) == 1:
-			return inverse[i].index(PLACEHOLDER), i, remaining_ans_for_col.pop()
+			guy = remaining_ans_for_col.pop()
+			print('col {} needs only {}'.format(i, guy))
+			return inverse[i].index(PLACEHOLDER), i, guy
 
 	#if a row and col's intersection only needs 1 number, fill it in
 	for i in range(len(userboard)):
@@ -357,44 +384,17 @@ def guess(userboard, cages):
 			remaining_ans_for_col = set(playable_numbers).difference(set(col))
 			row_col_intersect = set(remaining_ans_for_col).intersection(set(remaining_ans_for_row))
 			if len(row_col_intersect) == 1 and userboard[i][j] == PLACEHOLDER:
-				return i, j, row_col_intersect.pop()
+				guy = row_col_intersect.pop()
+				print('{},{} intersection needs only {}'.format(i, j, guy))
+				return i, j, guy
 
 	#if we have only 1 possible index in a row that a number can go, fill it in
-	for i in range(len(userboard)):
-		row = userboard[i]
-		other_rows  = list(range(len(userboard)))
-		other_rows.remove(i)
-		remaining_ans_for_row = set(playable_numbers).difference(set(row))
-		for potential in remaining_ans_for_row:
-			potential_indexes = list(range(len(userboard)))
-			for r in range(len(row)):
-				#remove filled in rows 
-				if row[r] != PLACEHOLDER and r in potential_indexes:
-					potential_indexes.remove(r)
-			for other_row in other_rows:
-				for r in range(len(userboard)):
-					if userboard[other_row][r] == potential and r in potential_indexes:
-						potential_indexes.remove(r)
-			if len(potential_indexes) == 1:
-				return i, potential_indexes[0], potential
-
-	#same as above but for cols
-	for i in range(len(userboard)):
-		col = inverse[i]
-		other_cols  = list(range(len(userboard)))
-		other_cols.remove(i)
-		remaining_ans_for_col = set(playable_numbers).difference(set(col))
-		for potential in remaining_ans_for_col:
-			potential_indexes = list(range(len(userboard)))
-			for r in range(len(col)):
-				if col[r] != PLACEHOLDER and r in potential_indexes:
-					potential_indexes.remove(r)
-			for other_col in other_cols:
-				for r in range(len(userboard)):
-					if userboard[r][other_col] == potential and r in potential_indexes:
-						potential_indexes.remove(r)
-			if len(potential_indexes) == 1:
-				return potential_indexes[0], i, potential
+	g = guess_one_index(userboard, userboard, playable_numbers)
+	if g:
+		return g
+	g = guess_one_index(userboard, inverse, playable_numbers)
+	if g:
+		return g
 
 	#if a cage has everything filled in except 1 cell, the cage can be filled in
 	for cage in cages:
@@ -433,8 +433,8 @@ def guess(userboard, cages):
 						correct_answers.remove(correct_answer)
 
 				if len(correct_answers) == 1:
+					print('all cells in cage filled except {},{} needs {}'.format(cell_in_cage_to_finish[0], cell_in_cage_to_finish[1], correct_answers[0]))
 					return cell_in_cage_to_finish[0], cell_in_cage_to_finish[1], correct_answers[0]
-
 
 
 def main(ai_size=None, ai_diff=None):
@@ -454,10 +454,10 @@ def main(ai_size=None, ai_diff=None):
 			if INTERACTIVE:
 				vals = raw_input('enter value as `row,col,val`: ').split(',')
 			else:
-				print('making move')
+				print('making move:')
 				vals = guess(userboard, cages)
 				if vals is None:
-					print('ai not smart enough to guess')
+					print('ai not smart enough to guess, answer for it or quit')
 					vals = raw_input('enter value as `row,col,val`: ').split(',')
 					# if KEEP_RUNNING_AI:
 					# 	main(len(board), d)
@@ -469,6 +469,17 @@ def main(ai_size=None, ai_diff=None):
 			if vals[0].lower() == CAGES_CMD:
 				print('cages:')
 				print(cages)
+			elif vals[0].lower() == TOTAL_CMD:
+				number_totals = {}
+				for row in userboard:
+					for guy in row:
+						if guy != PLACEHOLDER:
+							if guy not in number_totals:
+								number_totals[guy] = 1
+							else:
+								number_totals[guy] += 1
+
+				print('Total of each number played: {}'.format(number_totals))
 			elif vals[0].lower() == QUIT_CMD:
 				print('quitting! here is the answer:')
 				print(ListBoard(b=board, normal=True, color=color_board))
@@ -498,11 +509,11 @@ def main(ai_size=None, ai_diff=None):
 							for j in range(len(inverse)):
 								inverse[j][i] = userboard[i][j]
 					remaining_ans_for_col = set(playable_numbers).difference(set(inverse[int(vals[0][0])]))
-					print('Numbers remaining in column {}: {}'.format(vals[0][0], list(remaining_ans_for_col)))
+					print('Numbers remaining in column {}: {}'.format(vals[0][0], sorted(list(remaining_ans_for_col))))
 				elif vals[0][0].isdigit() and vals[0][1].lower() == ROW_CMD:
 					playable_numbers = list(range(1, len(userboard) + 1, 1))
 					remaining_ans_for_row = set(playable_numbers).difference(set(userboard[int(vals[0][0])]))
-					print('Numbers remaining in row {}: {}'.format(vals[0][0], list(remaining_ans_for_row)))
+					print('Numbers remaining in row {}: {}'.format(vals[0][0], sorted(list(remaining_ans_for_row))))
 			else:
 				row, col, val = int(vals[0]), int(vals[1]), int(vals[2])
 				try:
@@ -534,6 +545,7 @@ def main(ai_size=None, ai_diff=None):
 			save_playthrough_to_file(board, cages, d, total_time)
 
 		again = raw_input('want to play again? \'a\' for again, anything else to quit: ')
+		#TODO: even if you type Q here it still plays again???
 		if again == 'a':
 			main()
 	else:
