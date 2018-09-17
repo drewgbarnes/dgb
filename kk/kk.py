@@ -204,7 +204,7 @@ def build_c(board, d):
     n = len(board)
     # ops = ['*']*d + ['+']*d + ['-']*d + ['/']*d + ['.']
     ops = ('*', '+', '-', '/')
-    max_cage_size = len(board)/2 if len(board)/2 != 1 else 2
+    max_cage_size = int(len(board)/2) if len(board)/2 != 1 else 2
     cages = {}
 
     temp = list(x for x in itertools.permutations(list(range(n)) + list(range(n)), r=2))
@@ -547,7 +547,7 @@ def main(ai_size=None, ai_diff=None):
     print('you won!')
     print(ListBoard(b=userboard, normal=True, color=color_board))
     print('it took you {}:{} to beat this {}x{} board on difficulty {}'.format(
-        total_time / 60, total_time % 60, len(board), len(board), d))
+        int(total_time / 60), total_time % 60, len(board), len(board), d))
     print('************************************')
 
     if INTERACTIVE:
