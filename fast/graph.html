@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Speed Histogram</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Download Speed Over Time</h1>
+    <canvas id="speedChart" width="800" height="400"></canvas>
+    <script>
+        async function fetchData() {
+            const dataPoints = [];
+            const labels = [];
+
+            function extractDatetime(filename) {
+                const match = decodeURIComponent(filename).match(/speed_(.+)\.json/);
+                return match ? match[1].replace('_', ' ') : null;
+            }
+
+            // Fetch the directory listing
+            const response = await fetch('http://localhost.com:7777/');
+            const text = await response.text();
+
+            // Create a temporary DOM element to parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+
+            // Get all anchor elements
+            const links = doc.querySelectorAll('a');
+
+            // Extract file names from links
+            for (const link of links) {
+                const fileName = link.getAttribute('href');
+                if (fileName.endsWith('.json')) {
+                    try {
+                        // Fetch each JSON file
+                        const fileResponse = await fetch(`http://localhost.com:7777/${fileName}`);
+                        const data = await fileResponse.json();
+                        const datetime = extractDatetime(fileName);
+                        console.log(fileName, data)
+                        if (data.downloadSpeed && datetime) {
+                            labels.push(datetime);
+                            dataPoints.push(data.downloadSpeed);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching or parsing', fileName, error);
+                    }
+                }
+            }
+
+            console.log('Final labels:', labels);
+            console.log('Final dataPoints:', dataPoints);
+
+            return { labels, dataPoints };
+        }
+
+        async function createChart() {
+            const { labels, dataPoints } = await fetchData();
+
+            const ctx = document.getElementById('speedChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line', // Using a line chart to plot speed over time
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Download Speed (Mbps)',
+                        data: dataPoints,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date and Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Speed (Mbps)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        createChart();
+    </script>
+</body>
+</html>
