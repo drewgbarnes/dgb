@@ -9,7 +9,7 @@
 <body>
     <!-- Main Header with Marquee -->
     <header>
-        <marquee scrollamount="5" behavior="alternate">
+        <marquee scrollamount="20" behavior="scroll">
             🥏🥏🥏 WELCOME TO ONLY-FRISBEE.COM - THE ULTIMATE FRISBEE PARADISE! 🥏🥏🥏
         </marquee>
         <h1 class="main-title">
@@ -61,14 +61,14 @@
         <section id="dogs" class="featured-images">
             <h3>📸 Featured Frisbee Moments</h3>
             <div class="image-gallery">
-                <!-- <div class="image-card">
+                <div class="image-card">
                     <img src="park-lick-ham.jpg" alt="Dog playing with frisbee in park" class="retro-image">
                     <p class="image-caption">🐕 Happy dog with frisbee in the park!</p>
-                </div> -->
-                <!-- <div class="image-card">
+                </div>
+                <div class="image-card">
                     <img src="wet-ham.JPG" alt="Wet dog with frisbee" class="retro-image">
                     <p class="image-caption">💧 Wet and wild frisbee fun!</p>
-                </div> -->
+                </div>
                  <div class="image-card">
                     <div class="word-art-overlay frisbee-master">FRISBEE MASTER</div>
                     <img src="sniff-fris-ham.JPG" alt="Dog sniffing frisbee" class="retro-image">
@@ -82,14 +82,14 @@
                     <img src="brown-fris.JPG" alt="Brown frisbee action" class="retro-image">
                     <p class="image-caption">🥏 classic brown frisbee!</p>
                 </div>
-                <!-- <div class="image-card">
+                <div class="image-card">
                     <img src="want-ham.JPG" alt="Dog wanting frisbee" class="retro-image">
                     <p class="image-caption">🐕 I want that frisbee!</p>
-                </div> -->
-                <!-- <div class="image-card">
+                </div>
+                <div class="image-card">
                     <img src="tuck-ham.JPG" alt="Dog tucking frisbee" class="retro-image">
                     <p class="image-caption">🦮 Frisbee tuck position!</p>
-                </div> -->
+                </div>
                 <div class="image-card">
                     <img src="flower-ham-fris.JPG" alt="Dog with frisbee in flowers" class="retro-image">
                     <p class="image-caption">🌸 so hot. nice flowers though</p>
@@ -161,6 +161,27 @@
                     <img src="beach-fris-ham.gif" loading="lazy" alt="Frisbee adventure" class="retro-gif">
                     <p>🏖️ Beach action! Look at that sand!!</p>
                 </div>
+
+                <div class="video-item">
+                    <img src="IMG_3566.gif" loading="lazy" alt="Frisbee adventure" class="retro-gif">
+                    <p>🐕 Another frisbee adventure!</p>
+                </div>
+                <div class="video-item">
+                    <img src="IMG_5312.gif" loading="lazy" alt="Frisbee fun" class="retro-gif">
+                    <p>🎾 More frisbee fun!</p>
+                </div>
+                <div class="video-item">
+                    <img src="IMG_5430.gif" loading="lazy" alt="Frisbee action" class="retro-gif">
+                    <p>⚡ Fast frisbee action!</p>
+                </div>
+                <div class="video-item">
+                    <img src="IMG_5437.gif" loading="lazy" alt="Frisbee adventure" class="retro-gif">
+                    <p>🌟 Epic frisbee adventure!</p>
+                </div>
+                <div class="video-item">
+                    <img src="IMG_6503.gif" loading="lazy" alt="Frisbee fun" class="retro-gif">
+                    <p>🎯 Perfect frisbee catch!</p>
+                </div>
             </div>
 
             <!-- Secret Dropdown Menu -->
@@ -168,12 +189,35 @@
                 <button class="secret-dropdown-btn" onclick="toggleSecretDropdown()">🔍 More Content</button>
                 <div id="secret-dropdown-content" class="secret-dropdown-content">
                     <div class="nested-dropdown">
-                        <button class="nested-dropdown-btn">📸 Secret Photos</button>
+                        <button class="nested-dropdown-btn" onclick="toggleOriginalNestedDropdown()">📸 Secret Photos</button>
                         <div class="nested-dropdown-content">
-                            <a class="secret-link" onmouseover="showSecretPhoto('secret/IMG_7158.jpg')" onmouseout="hideSecretPhoto()">🌅 Secret Photo 1</a>
-                            <a class="secret-link" onmouseover="showSecretPhoto('secret/IMG_7434.jpg')" onmouseout="hideSecretPhoto()">🌄 Secret Photo 2</a>
-                            <a class="secret-link" onmouseover="showSecretPhoto('secret/IMG_6960.jpg')" onmouseout="hideSecretPhoto()">🌆 Secret Photo 3</a>
-                            <div id="photo-display-dropdown" class="photo-display-dropdown" onmouseover="this.classList.add('show')" onmouseout="this.classList.remove('show')">
+                            <a class="secret-link" onclick="toggleSecretPhoto('secret/IMG_7158.jpg')">How did you get here?</a>
+                            <a class="secret-link" onclick="toggleSecretPhoto('secret/IMG_7434.jpg')">This is top secret dog content</a>
+                            <a class="secret-link" onclick="toggleSecretPhoto('secret/IMG_6960.jpg')">Technically not frisbee content</a>
+                            <div class="nested-dropdown-level-1">
+                                <a class="secret-link-final" id="do-not-enter" onclick="toggleNestedDropdown(1)">DO NOT ENTER</a>
+                                <div class="nested-dropdown-content-level-1">
+                                    <div class="nested-dropdown-level-2">
+                                        <a class="secret-link-final" onclick="toggleNestedDropdown(2)">🚨 WARNING: DANGER ZONE 🚨</a>
+                                        <div class="nested-dropdown-content-level-2">
+                                            <div class="nested-dropdown-level-3">
+                                                <a class="secret-link-final" onclick="toggleNestedDropdown(3)">⚠️ LAST CHANCE TO TURN BACK ⚠️</a>
+                                                <div class="nested-dropdown-content-level-3">
+                                                    <div class="nested-dropdown-level-4">
+                                                        <a class="secret-link-final" onclick="toggleNestedDropdown(4)">💀 YOU'RE REALLY SURE? 💀</a>
+                                                        <div class="nested-dropdown-content-level-4">
+                                                            <div class="nested-dropdown-level-5">
+                                                                <a class="secret-link-final" onclick="triggerPopupHell()">🔥 FINAL WARNING 🔥</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="photo-display-dropdown" class="photo-display-dropdown">
                                 <img id="secret-photo" src="" alt="Secret Photo" class="secret-photo-dropdown">
                             </div>
                         </div>
@@ -272,6 +316,9 @@
     <div class="floating-ham-sticker">
         <img src="ham-sticker.png" alt="Floating Ham Sticker" class="ham-sticker-img">
     </div>
+
+    <!-- Popup Hell Container -->
+    <div id="popup-hell" class="popup-hell"></div>
 
     <script>
         // Minimal JS for popup and counter
@@ -400,18 +447,18 @@
         setInterval(updateCountdown, 1000);
 
                                 // Secret Photo Display Functions
-        function showSecretPhoto(photoPath) {
+        function toggleSecretPhoto(photoPath) {
             const photoElement = document.getElementById('secret-photo');
             const photoDropdown = document.getElementById('photo-display-dropdown');
 
-            photoElement.src = photoPath;
-            photoDropdown.classList.add('show');
-        }
-
-        // Hide photo dropdown when mouse leaves
-        function hideSecretPhoto() {
-            const photoDropdown = document.getElementById('photo-display-dropdown');
-            photoDropdown.classList.remove('show');
+            // If the same photo is already shown, hide it
+            if (photoElement.src.includes(photoPath) && photoDropdown.classList.contains('show')) {
+                photoDropdown.classList.remove('show');
+            } else {
+                // Show the new photo
+                photoElement.src = photoPath;
+                photoDropdown.classList.add('show');
+            }
         }
 
                 // Dropdown Toggle Functions
@@ -421,19 +468,58 @@
         }
 
                 // Close dropdowns when clicking outside
-        window.onclick = function(event) {
+        document.addEventListener('click', function(event) {
+            console.log('Click detected on:', event.target.className, event.target.textContent);
+
+            // If clicking on a secret-link-final, don't run the close logic
+            if (event.target.matches('.secret-link-final')) {
+                console.log('Clicking on secret-link-final, skipping close logic');
+                return;
+            }
+
             const secretDropdown = document.getElementById('secret-dropdown-content');
             const photoDropdown = document.getElementById('photo-display-dropdown');
 
-            if (!event.target.matches('.secret-dropdown-btn')) {
+            // Check if click is outside secret dropdown button AND not on nested dropdown elements
+            if (!event.target.matches('.secret-dropdown-btn') &&
+                !event.target.matches('.nested-dropdown-btn') &&
+                !event.target.matches('.secret-link') &&
+                !event.target.matches('.secret-link-final')) {
+
                 if (secretDropdown.classList.contains('show')) {
+                    console.log('Closing secret dropdown');
                     secretDropdown.classList.remove('show');
                 }
+            }
+
+            // Check if click is outside photo dropdown and secret links
+            if (!event.target.matches('.secret-link') && !event.target.matches('.secret-link-final')) {
                 if (photoDropdown.classList.contains('show')) {
+                    console.log('Closing photo dropdown');
                     photoDropdown.classList.remove('show');
                 }
             }
-        }
+
+            // Check if click is outside nested dropdowns (but allow clicks on the buttons themselves)
+            if (!event.target.matches('.secret-link-final') &&
+                !event.target.matches('.nested-dropdown-btn') &&
+                !event.target.matches('.secret-link')) {
+                console.log('Closing nested dropdowns');
+                // Close all nested dropdowns
+                for (let i = 1; i <= 4; i++) {
+                    const nestedDropdown = document.querySelector(`.nested-dropdown-content-level-${i}`);
+                    if (nestedDropdown && nestedDropdown.classList.contains('show')) {
+                        nestedDropdown.classList.remove('show');
+                    }
+                }
+
+                // Close original nested dropdown
+                const originalNestedDropdown = document.querySelector('.nested-dropdown-content');
+                if (originalNestedDropdown && originalNestedDropdown.classList.contains('show')) {
+                    originalNestedDropdown.classList.remove('show');
+                }
+            }
+        });
 
         // Close popup with escape key
         document.addEventListener('keydown', function(event) {
@@ -444,6 +530,139 @@
                 }
             }
         });
+
+                // Nested Dropdown Functions
+        function toggleOriginalNestedDropdown() {
+            const dropdown = document.querySelector('.nested-dropdown-content');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+                                function toggleNestedDropdown(level) {
+            const dropdown = document.querySelector(`.nested-dropdown-content-level-${level}`);
+            if (dropdown) {
+                // Only close other dropdowns at THIS level, not at other levels
+                const allAtLevel = document.querySelectorAll(`.nested-dropdown-content-level-${level}`);
+                allAtLevel.forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown) {
+                        otherDropdown.classList.remove('show');
+                    }
+                });
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Popup Hell Functions
+        function triggerPopupHell() {
+            const popupHell = document.getElementById('popup-hell');
+            popupHell.classList.add('show');
+
+            // Create multiple overlapping popups
+            const popupMessages = [
+                { title: "🎉 CONGRATULATIONS! 🎉", message: "You've won a FREE FRISBEE! Click to claim!", button: "CLAIM NOW!" },
+                { title: "🚨 URGENT ALERT! 🚨", message: "Your computer has 47 viruses! Click to scan!", button: "SCAN NOW!" },
+                { title: "💰 CASH PRIZE! 💰", message: "You're the 1,000,000th visitor! Click to collect $1000!", button: "COLLECT MONEY!" },
+                { title: "🎮 FREE GAMES! 🎮", message: "Download 50 FREE games instantly!", button: "DOWNLOAD NOW!" },
+                { title: "🏆 WINNER! 🏆", message: "You've been selected for a special offer!", button: "ACCEPT OFFER!" },
+                { title: "🔔 NOTIFICATION! 🔔", message: "Important system message for you!", button: "READ MESSAGE!" },
+                { title: "🎁 SPECIAL GIFT! 🎁", message: "Click here to receive your free gift!", button: "GET GIFT!" },
+                { title: "⚡ FLASH SALE! ⚡", message: "90% off everything! Limited time!", button: "SHOP NOW!" },
+                { title: "🌟 EXCLUSIVE DEAL! 🌟", message: "Only for you! Special discount!", button: "GET DEAL!" },
+                { title: "🎯 TARGET ACQUIRED! 🎯", message: "You've been chosen! Click to proceed!", button: "PROCEED!" }
+            ];
+
+            // Create 15-20 overlapping popups
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => {
+                    createHellPopup(popupMessages[i % popupMessages.length]);
+                }, i * 200); // Stagger popup creation
+            }
+
+            // Add escape key handler for popup hell
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closePopupHell();
+                }
+            });
+        }
+
+        function createHellPopup(messageData) {
+            const popupHell = document.getElementById('popup-hell');
+            const popup = document.createElement('div');
+            popup.className = 'hell-popup';
+
+            // Random position within viewport
+            const maxX = window.innerWidth - 400;
+            const maxY = window.innerHeight - 200;
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+
+            popup.style.left = randomX + 'px';
+            popup.style.top = randomY + 'px';
+
+            popup.innerHTML = `
+                <h3>${messageData.title}</h3>
+                <p>${messageData.message}</p>
+                <button onclick="this.parentElement.remove()">${messageData.button}</button>
+            `;
+
+            popupHell.appendChild(popup);
+
+            // Make popup draggable
+            makeDraggable(popup);
+        }
+
+        function makeDraggable(element) {
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            element.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === element) {
+                    isDragging = true;
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    setTranslate(currentX, currentY, element);
+                }
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+            }
+
+            function dragEnd(e) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+            }
+        }
+
+        function closePopupHell() {
+            const popupHell = document.getElementById('popup-hell');
+            popupHell.classList.remove('show');
+            popupHell.innerHTML = ''; // Clear all popups
+        }
     </script>
 </body>
 </html>
